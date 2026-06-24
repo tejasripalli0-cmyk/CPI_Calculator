@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CPI Goal Planner</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            background-image: radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+                              radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
+                              radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: var(--text-main);
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            max-width: 450px;
+            width: 100%;
+            padding: 2.5rem;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .input-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #475569;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.2s;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+        }
+
+        button.calc-btn {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.1s, background 0.2s;
+            margin-top: 1rem;
+        }
+
+        button.calc-btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        button.calc-btn:active {
+            transform: scale(0.98);
+        }
+
+        #result-container {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            border-radius: 16px;
+            display: none;
+            text-align: center;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .result-message {
+            font-weight: 600;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        .footer {
+            margin-top: 2.5rem;
+            text-align: center;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 1.5rem;
+        }
+
+        .contact-info {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .contact-info span {
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .hero-btn {
+            display: inline-block;
+            background: #0f172a;
+            color: white;
+            text-decoration: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .hero-btn:hover {
+            background: #334155;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        /* Status Colors */
+        .status-success { background-color: #f0fdf4; color: var(--success); border: 1px solid #bbf7d0; }
+        .status-danger { background-color: #fef2f2; color: var(--danger); border: 1px solid #fecaca; }
+
+        @media (max-width: 480px) {
+            .container { padding: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>CPI Goal Planner</h1>
+            <p class="subtitle">Calculate your target performance</p>
+        </header>
+
+        <div class="input-group">
+            <label>Current CPI</label>
+            <input type="number" id="currentCPI" step="0.01" placeholder="e.g. 7.5">
+        </div>
+
+        <div class="input-group">
+            <label>Completed Credits</label>
+            <input type="number" id="completedCredits" placeholder="e.g. 60">
+        </div>
+
+        <div class="input-group">
+            <label>Target CPI</label>
+            <input type="number" id="targetCPI" step="0.01" placeholder="e.g. 8.0">
+        </div>
+
+        <div class="input-group">
+            <label>Remaining Credits</label>
+            <input type="number" id="remainingCredits" placeholder="e.g. 20">
+        </div>
+
+        <button class="calc-btn" onclick="calculateSPI()">Calculate Required SPI</button>
+
+        <div id="result-container">
+            <div class="result-value" id="spiValue">0.00</div>
+            <div class="result-message" id="spiMessage"></div>
+        </div>
+
+        <footer class="footer">
+            <div class="contact-info">
+                <span><strong>Developer:</strong> John Doe</span>
+                <span><strong>Email:</strong> contact@example.com</span>
+            </div>
+            <a href="https://digitalheroesco.com" class="hero-btn">Built for Digital Heroes</a>
+        </footer>
+    </div>
+
+    <script>
+        function calculateSPI() {
+            // Get input values
+            const currentCPI = parseFloat(document.getElementById('currentCPI').value);
+            const compCredits = parseFloat(document.getElementById('completedCredits').value);
+            const targetCPI = parseFloat(document.getElementById('targetCPI').value);
+            const remCredits = parseFloat(document.getElementById('remainingCredits').value);
+
+            const resultContainer = document.getElementById('result-container');
+            const spiValueDisplay = document.getElementById('spiValue');
+            const spiMessageDisplay = document.getElementById('spiMessage');
+
+            // Simple Validation
+            if (isNaN(currentCPI) || isNaN(compCredits) || isNaN(targetCPI) || isNaN(remCredits)) {
+                alert("Please fill in all fields with valid numbers.");
+                return;
+            }
+
+            if (remCredits <= 0) {
+                alert("Remaining credits must be greater than 0.");
+                return;
+            }
+
+            // Formula: Required_SPI = (Target_CPI * (Completed_Credits + Remaining_Credits) - Current_CPI * Completed_Credits) / Remaining_Credits
+            const totalCredits = compCredits + remCredits;
+            const requiredSPI = ((targetCPI * totalCredits) - (currentCPI * compCredits)) / remCredits;
+
+            // Update UI
+            resultContainer.style.display = 'block';
+            spiValueDisplay.innerText = requiredSPI.toFixed(2);
+
+            // Logic for messages and colors
+            if (requiredSPI <= 10 && requiredSPI >= 0) {
+                resultContainer.className = 'status-success';
+                spiMessageDisplay.innerText = "Target is achievable! Keep pushing forward.";
+            } else if (requiredSPI > 10) {
+                resultContainer.className = 'status-danger';
+                spiMessageDisplay.innerText = "This target is mathematically impossible (SPI exceeds 10.0).";
+            } else if (requiredSPI < 0) {
+                // If required SPI is negative, they've already achieved the goal
+                resultContainer.className = 'status-success';
+                spiMessageDisplay.innerText = "You have already reached your goal! Just maintain a passing grade.";
+            }
+        }
+    </script>
+</body>
+</html>
